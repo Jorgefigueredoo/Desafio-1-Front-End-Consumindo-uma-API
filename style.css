@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #078be4;
+}
+
+h2 {
+    color: #fff;
+    font-size: 35px;
+}
+p {
+    color: #fff;
+    font-size: 30px;
+}
+input {
+    color: #fff;
+    font-size: 25px;
+}
+button {
+    color: #020202;
+    font-size: 25px;
+}
