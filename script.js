@@ -1,5 +1,5 @@
  async function buscarCEP() {
-    const cep = document.getElementById('cep').value;
+    const cep = document.getElementById('cep').value.replace(/\D/g, ''); 
     const resultado = document.getElementById('resultado');
 
     if (cep.length !== 8) {
