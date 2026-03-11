@@ -3,17 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App de Receitas do Tigrinho</title>
+    <title>App de Frases Motivacionais</title>
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <img width ="200px" src="https://cdn.folhape.com.br/upload/dn_arquivo/2024/07/fortune-tiger-divulgacao.png">
-    <h2>App de Receitas do Tigrinho</h2>
+    <img width ="500px" src="https://i.ytimg.com/vi/RQkthiy0oMM/hqdefault.jpg">
+    <h2>Busque o seu CEP</h2>
     <hr>
-   <p>Clique no botão para sortear a sua receita!</p>
-   <button onclick="getReceita()">Sortear Receita</button>
+   <p>Clique aqui para buscar seu CEP!</p>
+   <input type="text" id="cep" placeholder="Digite seu CEP">
+   <button onclick="buscarCEP()">Buscar CEP</button>
    <hr>
-   <div id="receita"> </div>
+   <div id="resultado"> </div>
     <script src="script.js"></script>
   </body>
 </html>
