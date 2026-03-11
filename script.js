@@ -1,15 +1,27 @@
-async function getReceita() {
-    let response = await fetch('https://www.themealdb.com/api/json/v1/1/random.php');
-    let data = await response.json();
-    console.log("Dados Brutos:");
-    console.log(data);
-    let receita = data.meals[0];
-    console.log("Receita Extraída:");
-    console.log(receita);
+ async function buscarCEP() {
+    const cep = document.getElementById('cep').value;
+    const resultado = document.getElementById('resultado');
 
-    document.getElementById("receita").innerHTML = `
-        <h2>${receita.strMeal}</h2>
-        <img src="${receita.strMealThumb}" alt="${receita.strMeal}" style="width: 200px; height: auto;">
-        <p>Categoria: ${receita.strCategory}</p>
-        <p>Preparos: ${receita.strInstructions}</p> `;
+    if (cep.length !== 8) {
+        resultado.innerHTML = "Digite um cep com 8 dígitos";
+        return;
+    }
+    try {
+        resultado.innerHTML = "Buscando...";
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
+        if (data.erro) {
+            resultado.innerHTML = "CEP não encontrado";
+            return;
+        }
+        resultado.innerHTML = `
+            <p><strong>Rua:</strong> ${data.logradouro}</p>
+            <p><strong>Bairro:</strong> ${data.bairro}</p>
+            <p><strong>Cidade:</strong> ${data.localidade}</p>
+            <p><strong>Estado:</strong> ${data.uf}</p>
+             `;
+    } catch (error) {
+        resultado.innerHTML = "Erro ao buscar o CEP";
+        console.error(error);
+    }
 }
