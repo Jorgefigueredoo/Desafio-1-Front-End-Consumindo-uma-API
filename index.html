@@ -1,20 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App Buscador de CEP</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Buscador de CEP | Consulta rápida pelo ViaCEP</title>
+    <meta
+      name="description"
+      content="Consulte CEPs de forma rápida e simples usando a API ViaCEP. Veja rua, bairro, cidade e estado em segundos."
+    />
+    <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
-    <img width ="350px" src="https://i.ytimg.com/vi/RQkthiy0oMM/hqdefault.jpg">
-    <h2>Busque o seu CEP</h2>
-    <hr>
-   <p>Clique aqui para buscar seu CEP!</p>
-   <input type="text" id="cep" placeholder="Digite seu CEP">
-   <button onclick="buscarCEP()">Buscar CEP</button>
-   <hr>
-   <div id="resultado"> </div>
+    <main class="container">
+      <img
+        class="banner"
+        src="https://i.ytimg.com/vi/RQkthiy0oMM/hqdefault.jpg"
+        alt="Imagem ilustrativa de consulta de CEP"
+        width="350"
+        height="197"
+      />
+
+      <h1>Busque o seu CEP</h1>
+      <p class="descricao">Digite um CEP com 8 dígitos para consultar o endereço.</p>
+
+      <form class="form-busca" id="cepForm">
+        <label for="cep">CEP</label>
+        <input
+          type="text"
+          id="cep"
+          name="cep"
+          inputmode="numeric"
+          autocomplete="postal-code"
+          maxlength="9"
+          placeholder="Ex: 50000-000"
+          aria-describedby="ajuda-cep"
+        />
+        <small id="ajuda-cep">Digite apenas números ou no formato 00000-000.</small>
+
+        <button type="submit">Buscar CEP</button>
+      </form>
+
+      <section
+        id="resultado"
+        class="resultado"
+        aria-live="polite"
+        aria-atomic="true"
+      ></section>
+    </main>
+
     <script src="script.js"></script>
   </body>
 </html>
