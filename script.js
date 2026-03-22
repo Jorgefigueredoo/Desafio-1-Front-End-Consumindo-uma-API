@@ -1,27 +1,55 @@
- async function buscarCEP() {
-    const cep = document.getElementById('cep').value.replace(/\D/g, ''); 
-    const resultado = document.getElementById('resultado');
+const form = document.getElementById("cepForm");
+const inputCep = document.getElementById("cep");
+const resultado = document.getElementById("resultado");
 
-    if (cep.length !== 8) {
-        resultado.innerHTML = "Digite um cep com 8 dígitos";
-        return;
+inputCep.addEventListener("input", (e) => {
+  let valor = e.target.value.replace(/\D/g, "");
+
+  if (valor.length > 8) {
+    valor = valor.slice(0, 8);
+  }
+
+  if (valor.length > 5) {
+    valor = `${valor.slice(0, 5)}-${valor.slice(5)}`;
+  }
+
+  e.target.value = valor;
+});
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const cep = inputCep.value.replace(/\D/g, "");
+
+  if (cep.length !== 8) {
+    resultado.innerHTML = `<p class="erro">Digite um CEP com 8 dígitos.</p>`;
+    return;
+  }
+
+  try {
+    resultado.innerHTML = `<p>Buscando CEP...</p>`;
+
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+
+    if (!response.ok) {
+      throw new Error("Falha na requisição.");
     }
-    try {
-        resultado.innerHTML = "Buscando...";
-        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await response.json();
-        if (data.erro) {
-            resultado.innerHTML = "CEP não encontrado";
-            return;
-        }
-        resultado.innerHTML = `
-            <p><strong>Rua:</strong> ${data.logradouro}</p>
-            <p><strong>Bairro:</strong> ${data.bairro}</p>
-            <p><strong>Cidade:</strong> ${data.localidade}</p>
-            <p><strong>Estado:</strong> ${data.uf}</p>
-             `;
-    } catch (error) {
-        resultado.innerHTML = "Erro ao buscar o CEP";
-        console.error(error);
+
+    const data = await response.json();
+
+    if (data.erro) {
+      resultado.innerHTML = `<p class="erro">CEP não encontrado.</p>`;
+      return;
     }
-}
+
+    resultado.innerHTML = `
+      <p><strong>Rua:</strong> ${data.logradouro || "Não informado"}</p>
+      <p><strong>Bairro:</strong> ${data.bairro || "Não informado"}</p>
+      <p><strong>Cidade:</strong> ${data.localidade || "Não informado"}</p>
+      <p><strong>Estado:</strong> ${data.uf || "Não informado"}</p>
+    `;
+  } catch (error) {
+    resultado.innerHTML = `<p class="erro">Erro ao buscar o CEP.</p>`;
+    console.error(error);
+  }
+});
