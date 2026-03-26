@@ -1,33 +1,46 @@
 const form = document.getElementById("cepForm");
 const inputCep = document.getElementById("cep");
 const resultado = document.getElementById("resultado");
+const geoBtn = document.getElementById("geoBtn");
+const installBtn = document.getElementById("installBtn");
 
-inputCep.addEventListener("input", (e) => {
-  let valor = e.target.value.replace(/\D/g, "");
+let deferredPrompt = null;
 
-  if (valor.length > 8) {
-    valor = valor.slice(0, 8);
+function formatarCep(valor) {
+  let cep = valor.replace(/\D/g, "");
+
+  if (cep.length > 8) {
+    cep = cep.slice(0, 8);
   }
 
-  if (valor.length > 5) {
-    valor = `${valor.slice(0, 5)}-${valor.slice(5)}`;
+  if (cep.length > 5) {
+    cep = `${cep.slice(0, 5)}-${cep.slice(5)}`;
   }
 
-  e.target.value = valor;
-});
+  return cep;
+}
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+function mostrarMensagem(mensagem, classe = "") {
+  resultado.innerHTML = `<p class="${classe}">${mensagem}</p>`;
+}
 
-  const cep = inputCep.value.replace(/\D/g, "");
+function mostrarResultado(data) {
+  resultado.innerHTML = `
+    <p><strong>Rua:</strong> ${data.logradouro || "Não informado"}</p>
+    <p><strong>Bairro:</strong> ${data.bairro || "Não informado"}</p>
+    <p><strong>Cidade:</strong> ${data.localidade || "Não informado"}</p>
+    <p><strong>Estado:</strong> ${data.uf || "Não informado"}</p>
+  `;
+}
 
+async function buscarCep(cep) {
   if (cep.length !== 8) {
-    resultado.innerHTML = `<p class="erro">Digite um CEP com 8 dígitos.</p>`;
+    mostrarMensagem("Digite um CEP com 8 dígitos.", "erro");
     return;
   }
 
   try {
-    resultado.innerHTML = `<p>Buscando CEP...</p>`;
+    mostrarMensagem("Buscando CEP...");
 
     const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
 
@@ -38,18 +51,84 @@ form.addEventListener("submit", async (e) => {
     const data = await response.json();
 
     if (data.erro) {
-      resultado.innerHTML = `<p class="erro">CEP não encontrado.</p>`;
+      mostrarMensagem("CEP não encontrado.", "erro");
       return;
     }
 
-    resultado.innerHTML = `
-      <p><strong>Rua:</strong> ${data.logradouro || "Não informado"}</p>
-      <p><strong>Bairro:</strong> ${data.bairro || "Não informado"}</p>
-      <p><strong>Cidade:</strong> ${data.localidade || "Não informado"}</p>
-      <p><strong>Estado:</strong> ${data.uf || "Não informado"}</p>
-    `;
+    mostrarResultado(data);
   } catch (error) {
-    resultado.innerHTML = `<p class="erro">Erro ao buscar o CEP.</p>`;
+    mostrarMensagem("Erro ao buscar o CEP.", "erro");
     console.error(error);
   }
+}
+
+inputCep.addEventListener("input", (e) => {
+  e.target.value = formatarCep(e.target.value);
 });
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const cep = inputCep.value.replace(/\D/g, "");
+  await buscarCep(cep);
+});
+
+geoBtn.addEventListener("click", () => {
+  if (!("geolocation" in navigator)) {
+    mostrarMensagem("Geolocalização não suportada neste dispositivo.", "erro");
+    return;
+  }
+
+  mostrarMensagem("Obtendo sua localização...");
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+
+      resultado.innerHTML = `
+        <p><strong>Localização obtida com sucesso.</strong></p>
+        <p><strong>Latitude:</strong> ${latitude.toFixed(5)}</p>
+        <p><strong>Longitude:</strong> ${longitude.toFixed(5)}</p>
+        <p>
+          <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" rel="noopener noreferrer">
+            Abrir no mapa
+          </a>
+        </p>
+      `;
+    },
+    (error) => {
+      mostrarMensagem("Não foi possível obter sua localização.", "erro");
+      console.error(error);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+});
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
+  installBtn.hidden = false;
+});
+
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+      console.log("Service Worker registrado com sucesso.");
+    } catch (error) {
+      console.error("Erro ao registrar o Service Worker:", error);
+    }
+  });
+}
