@@ -8,6 +8,8 @@
       name="description"
       content="Consulte CEPs de forma rápida e simples usando a API ViaCEP. Veja rua, bairro, cidade e estado em segundos."
     />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -22,7 +24,9 @@
       />
 
       <h1>Busque o seu CEP</h1>
-      <p class="descricao">Digite um CEP com 8 dígitos para consultar o endereço.</p>
+      <p class="descricao">
+        Digite um CEP com 8 dígitos para consultar o endereço ou use sua localização atual.
+      </p>
 
       <form class="form-busca" id="cepForm">
         <label for="cep">CEP</label>
@@ -36,10 +40,17 @@
           placeholder="Ex: 50000-000"
           aria-describedby="ajuda-cep"
         />
-        <small id="ajuda-cep">Digite apenas números ou no formato 00000-000.</small>
+        <small id="ajuda-cep">
+          Digite apenas números ou no formato 00000-000.
+        </small>
 
-        <button type="submit">Buscar CEP</button>
+        <div class="acoes">
+          <button type="submit">Buscar CEP</button>
+          <button type="button" id="geoBtn">Usar minha localização</button>
+        </div>
       </form>
+
+      <button type="button" id="installBtn" hidden>Instalar aplicativo</button>
 
       <section
         id="resultado"
