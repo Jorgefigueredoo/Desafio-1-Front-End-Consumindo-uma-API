@@ -1,0 +1,16 @@
+{
+  "name": "Buscador de CEP",
+  "short_name": "BuscaCEP",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "description": "Aplicação para consulta rápida de CEP com suporte PWA.",
+  "icons": [
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
