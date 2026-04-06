@@ -1,11 +1,12 @@
-const CACHE_NAME = "busca-cep-v2";
+const CACHE_NAME = "busca-cep-v3";
 
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./icons/favicon.svg"
 ];
 
 self.addEventListener("install", (event) => {
@@ -26,8 +27,15 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Network First: tenta buscar da rede, só usa cache se estiver offline
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    fetch(event.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
