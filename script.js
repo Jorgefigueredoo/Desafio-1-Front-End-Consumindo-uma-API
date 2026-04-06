@@ -81,19 +81,48 @@ geoBtn.addEventListener("click", () => {
   mostrarMensagem("Obtendo sua localização...");
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
       const { latitude, longitude } = position.coords;
 
-      resultado.innerHTML = `
-        <p><strong>Localização obtida com sucesso.</strong></p>
-        <p><strong>Latitude:</strong> ${latitude.toFixed(5)}</p>
-        <p><strong>Longitude:</strong> ${longitude.toFixed(5)}</p>
-        <p>
-          <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" rel="noopener noreferrer">
-            Abrir no mapa
-          </a>
-        </p>
-      `;
+      mostrarMensagem("Convertendo localização em CEP...");
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+          {
+            headers: {
+              "Accept-Language": "pt-BR",
+              "User-Agent": "BuscaCEP/1.0"
+            }
+          }
+        );
+
+        if (!response.ok) throw new Error("Falha na requisição.");
+
+        const data = await response.json();
+        const addr = data.address;
+        const cep = addr.postcode ? addr.postcode.replace(/\D/g, "") : null;
+
+        if (cep && cep.length === 8) {
+          inputCep.value = formatarCep(cep);
+          await buscarCep(cep);
+        } else {
+          resultado.innerHTML = `
+            <p><strong>Localização obtida, CEP não disponível para esta área.</strong></p>
+            <p><strong>Bairro:</strong> ${addr.suburb || addr.neighbourhood || "Não informado"}</p>
+            <p><strong>Cidade:</strong> ${addr.city || addr.town || addr.village || "Não informado"}</p>
+            <p><strong>Estado:</strong> ${addr.state || "Não informado"}</p>
+            <p>
+              <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" rel="noopener noreferrer">
+                Abrir no mapa
+              </a>
+            </p>
+          `;
+        }
+      } catch (error) {
+        mostrarMensagem("Não foi possível converter a localização em endereço.", "erro");
+        console.error(error);
+      }
     },
     (error) => {
       mostrarMensagem("Não foi possível obter sua localização.", "erro");
